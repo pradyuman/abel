@@ -37,6 +37,8 @@
   <body>
 
       <div id="wrapper">
+          <!-- Menu Icon for smaller viewports -->
+          <div id="mobile-menu-icon" class="visible-xs" onClick="toggle_main_menu();"><span class="glyphicon glyphicon-th"></span></div>
 
           <!-- Sidebar -->
           <div id="sidebar-wrapper">
@@ -44,38 +46,35 @@
               <img src="assets/images/logo.png">
           </div>
 
-          <!-- Menu Icon for smaller viewports -->
-          <div id="mobile-menu-icon" class="visible-xs" onClick="toggle_main_menu();"><span class="glyphicon glyphicon-th"></span></div>
-
                 <ul class="sidebar-nav">
-                  <li>
+                  <li class="menu-item">
                       <a id="aboutButton" href="#about">Course Description</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a id="docButton" href="#documents">Course Documents</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Course Textbook</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Lecture Notes</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Lecture Videos</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Lab Experiments</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Homework Assignments</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Reference Documents</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Exam Information</a>
                   </li>
-                  <li>
+                  <li class="menu-item">
                       <a href="#">Quiz and Exam Statistics</a>
                   </li>
               </ul>
@@ -140,18 +139,10 @@
       <script src="js/bootstrap.min.js"></script>
 
       <!-- Menu Toggle Script -->
-      <script>
-      $("#aboutButton").click(function() {
-          $("#documents").css("display","none");
-          $("#about").css("display","inline");
-      });
+      <script src="js/userFunction.js"></script>
 
-      $("#docButton").click(function() {
-          $("#about").css("display","none");
-          $("#documents").css("display","inline");
-      });
-      </script>
-
+      <!-- Responsive Script -->
+      <script src="js/functions.js"></script>
   </body>
 
 </html>
