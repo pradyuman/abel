@@ -135,11 +135,13 @@
       <!-- Menu Toggle Script -->
       <script>
       $("#aboutButton").click(function() {
-          $("#about").toggle();
+          $("#documents").css("display","none");
+          $("#about").css("display","inline");
       });
 
       $("#docButton").click(function() {
-          $("#documents").toggle();
+          $("#about").css("display","none");
+          $("#documents").css("display","inline");
       });
       </script>
 
