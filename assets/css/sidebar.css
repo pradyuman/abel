@@ -42,7 +42,7 @@
 /* Sidebar Styles */
 
 .sidebar-nav {
-    position: absolute;
+    position: relative;
     top: 0;
     width: 250px;
     margin: 0;
@@ -72,20 +72,36 @@
     text-decoration: none;
 }
 
-.sidebar-nav > .sidebar-brand {
-    height: 65px;
-    font-size: 18px;
-    line-height: 60px;
+/* -------------- LOGO ----------------- */
+
+#sidebar-wrapper .logo {
+    padding:15px 0 20px 0;
+    text-align: center;
+    background: rgba(0,0,0,0.1);
 }
 
-.sidebar-nav > .sidebar-brand a {
-    color: #999999;
+#sidebar-wrapper .logo img {
+    display:block;
+    margin:0 auto;
+    width: auto;
+    max-width:75%;
+    height:auto;
 }
 
-.sidebar-nav > .sidebar-brand a:hover {
-    color: #fff;
-    background: none;
-}
+    @media (min-width: 768px) {
+        #sidbar-wrapper .logo {
+            padding:28px 0 20px 0;
+            background: none;
+        }
+    }
+    @media (min-width: 992px) {
+        #sidebar-wrapper .logo {
+            padding:42px 0 30px 0;
+        }
+    }
+    @media (min-width: 1200px) {
+
+    }
 
 @media(min-width:768px) {
     #wrapper {
