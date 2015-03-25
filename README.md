@@ -1,2 +1,2 @@
 # abel
-My abel playground. Contains various abel programs that can be loaded into a PLD/CPLD.
+My abel playground. Contains various abel programs that can be loaded onto a PLD/CPLD.
