@@ -1,0 +1,71 @@
+MODULE isp4256ZEio
+
+TITLE 'isp4256ZE Development Board I/O Configuration'
+
+" Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+
+LIBRARY 'lattice';
+
+DECLARATIONS
+
+" Internal Oscillator
+
+osc_dis, osc_rst, osc_out, tmr_out node istype 'com';
+
+" Use maximum possible internal divisor -> yields approx 4 Hz output frequency
+
+XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
+
+" Second row (from top) of red LEDs
+
+!LED8 pin 139 istype 'com';	"IO_B4   right-most
+!LED9 pin 138 istype 'com';	"IO_B2
+!LED10 pin 135 istype 'com';	"IO_A12
+!LED11 pin 134 istype 'com';	"IO_A10
+!LED12 pin 133 istype 'com';	"IO_A8
+!LED13 pin 132 istype 'com';	"IO_A6
+!LED14 pin 131 istype 'com';	"IO_A4
+!LED15 pin 130 istype 'com';	"IO_A2   left-most
+
+MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
+
+" User-defined variables follow
+
+timdiv node istype 'reg_d,buffer';
+
+Q0..Q7 node istype 'reg';
+
+" ======================= START OF EQUATIONS SECTION =================================
+
+EQUATIONS
+
+" Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
+
+osc_dis = 0;
+osc_rst = 0;
+
+I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
+
+" User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+
+"Ring counter
+Q7 := Q6;
+Q6 := Q5;
+Q5 := Q4;
+Q4 := Q3;
+Q3 := Q2;
+Q2 := Q1;
+Q2 := Q0;
+
+"This makes sure that the counter does not fail
+Q0 := !(Q6#Q5#Q4#Q3#Q2#Q1#Q0);
+
+"Lowers the speed of the counter
+timdiv.clk = tmr_out;
+timdiv := !timdiv;
+
+[Q7..Q0].CLK = timdiv;
+
+MIDRED = [Q7..Q0];
+
+END
