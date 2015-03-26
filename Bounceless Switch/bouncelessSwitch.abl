@@ -1,0 +1,45 @@
+MODULE isp4256ZEio
+
+TITLE 'isp4256ZE Development Board I/O Configuration'
+
+" Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+
+LIBRARY 'lattice';
+
+DECLARATIONS
+
+" Yellow LEDs next to toggle switches
+!LED28 pin 63 istype 'com';	"IO_I12  right
+!LED29 pin 62 istype 'com';	"IO_I10  left
+
+" SPDT toggle switches (can be used to create bounceless switches)
+" ACTIVE LOW (contact closure to ground, with pull-up)
+!S1_NC pin 58;	"IO_I2   normally closed (down position)
+!S1_NO pin 59;	"IO_I4   normally open (up position)
+!S2_NC pin 60;	"IO_I6   normally closed (down position)
+!S2_NO pin 61;	"IO_I8   normally open (up position)
+
+B1 node istype 'reg';
+B2 node istype 'reg';
+
+EQUATIONS
+
+" User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+
+BOTRED = DIP;
+
+"Bounceless switch 1
+B1.D = 0;
+B1.CLK = 0;
+B1.AP = S1_NO;
+B1.AR = S1_NC;
+
+LED28 = B1;
+
+"Bounceless switch 2
+B2.D = 0;
+B2.CLK = 0;
+B2.AP = S2_NO;
+B2.AR = S2_NC;
+LED29 = B2;
+END
