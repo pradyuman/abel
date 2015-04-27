@@ -26,8 +26,6 @@ EQUATIONS
 
 " User-defined equations, clocked-operator tables, and/or state diagram definitions follow
 
-BOTRED = DIP;
-
 "Bounceless switch 1
 B1.D = 0;
 B1.CLK = 0;
