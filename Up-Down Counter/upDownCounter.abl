@@ -2,23 +2,23 @@ MODULE isp4256ZEio
 
 TITLE 'isp4256ZE Development Board I/O Configuration'
 
-" Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+// Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
 
 LIBRARY 'lattice';
 
 DECLARATIONS
 
-" Internal Oscillator
+// Internal Oscillator
 
 osc_dis, osc_rst, osc_out, tmr_out node istype 'com';
 
-" Use maximum possible internal divisor -> yields approx 4 Hz output frequency
+// Use maximum possible internal divisor -> yields approx 4 Hz output frequency
 
 XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
 
-" Input pins from DIP switch
-" DOWN - contact closure to ground - logic 0
-" UP - open contact pulled high with resistor - logic 1
+// Input pins from DIP switch
+// DOWN - contact closure to ground - logic 0
+// UP - open contact pulled high with resistor - logic 1
 
 DIP0 pin 79;	"IO_K6
 DIP1 pin 78;	"IO_K8
@@ -31,14 +31,14 @@ DIP7 pin 26;	"IO_E12
 
 DIP = [DIP7, DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
 
-" SPDT toggle switches (can be used to create bounceless switches)
-" ACTIVE LOW (contact closure to ground, with pull-up)
+// SPDT toggle switches (can be used to create bounceless switches)
+// ACTIVE LOW (contact closure to ground, with pull-up)
 !S1_NC pin 58;	"IO_I2   normally closed (down position)
 !S1_NO pin 59;	"IO_I4   normally open (up position)
 !S2_NC pin 60;	"IO_I6   normally closed (down position)
 !S2_NO pin 61;	"IO_I8   normally open (up position)
 
-" Top row of red LEDs
+// Top row of red LEDs
 
 !LED0 pin 40 istype 'com';	"IO_G10  right-most
 !LED1 pin 39 istype 'com';	"IO_G12
@@ -51,7 +51,7 @@ DIP = [DIP7, DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
 
 TOPRED = [LED7, LED6, LED5, LED4, LED3, LED2, LED1, LED0];
 
-" Second row (from top) of red LEDs
+// Second row (from top) of red LEDs
 
 !LED8 pin 139 istype 'com';	"IO_B4   right-most
 !LED9 pin 138 istype 'com';	"IO_B2
@@ -64,8 +64,8 @@ TOPRED = [LED7, LED6, LED5, LED4, LED3, LED2, LED1, LED0];
 
 MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
 
-" 7-segment common-anode displays (active low outputs)
-" Right-most display (DIS1)
+// 7-segment common-anode displays (active low outputs)
+// Right-most display (DIS1)
 
 !DIS1a pin 87 istype 'com';	"IO_L6
 !DIS1b pin 86 istype 'com';	"IO_L8
@@ -77,7 +77,7 @@ MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
 
 DIS1 = [DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g];
 
-" Second-from-right display (DIS2)
+// Second-from-right display (DIS2)
 
 !DIS2a pin 98 istype 'com';	"IO_M12
 !DIS2b pin 97 istype 'com';	"IO_M10
@@ -89,7 +89,7 @@ DIS1 = [DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g];
 
 DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
 
-" Second-from-left display (DIS3)
+// Second-from-left display (DIS3)
 
 !DIS3a pin 125 istype 'com';	"IO_P2
 !DIS3b pin 124 istype 'com';	"IO_P4
@@ -101,7 +101,7 @@ DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
 
 DIS3 = [DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g];
 
-" Left-most display (DIS4)
+// Left-most display (DIS4)
 
 !DIS4a pin 44 istype 'com';	"IO_G2
 !DIS4b pin 48 istype 'com';	"IO_H12
@@ -113,13 +113,13 @@ DIS3 = [DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g];
 
 DIS4 = [DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g];
 
-" Jumbo R-Y-G LEDs
+// Jumbo R-Y-G LEDs
 !LED16 pin 140 istype 'com';	"IO_B6   RED
 !LED17 pin 141 istype 'com';	"IO_B8   YELLOW
 !LED18 pin 142 istype 'com';	"IO_B10  GREEN
 !LED19 pin 143 istype 'com';	"IO_B12  (unpopulated)
 
-" Bottom row of red LEDs
+// Bottom row of red LEDs
 
 !LED20 pin 100 istype 'com';	"IO_N2   right-most
 !LED21 pin 101 istype 'com';	"IO_N4
@@ -132,11 +132,11 @@ DIS4 = [DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g];
 
 BOTRED = [LED27, LED26, LED25, LED24, LED23, LED22, LED21, LED20];
 
-" Yellow LEDs next to toggle switches
+// Yellow LEDs next to toggle switches
 !LED28 pin 63 istype 'com';	"IO_I12  right
 !LED29 pin 62 istype 'com';	"IO_I10  left
 
-" User-defined variables follow
+// User-defined variables follow
 
 B1 node istype 'reg';
 B2 node istype 'reg';
@@ -144,26 +144,26 @@ B2 node istype 'reg';
 timdiv node istype 'reg_d,buffer';
 
 M pin;
- "M=0 count DOWN, M=1 count UP
+//M=0 count DOWN, M=1 count UP
 
 Q0..Q7 node istype 'reg';
 
-" ======================= START OF EQUATIONS SECTION =================================
+// ======================= START OF EQUATIONS SECTION =================================
 
 EQUATIONS
 
-" Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
+// Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
 
 osc_dis = 0;
 osc_rst = 0;
 
 I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
 
-" User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
 
 BOTRED = DIP;
 
-"Bounceless switch
+//Bounceless switch
 B1.D = 0;
 B1.CLK = 0;
 B1.AP = S1_NO;
@@ -171,48 +171,48 @@ B1.AR = S1_NC;
 
 LED28 = B1;
 
-"Bounceless switch
+//Bounceless switch
 B2.D = 0;
 B2.CLK = 0;
 B2.AP = S2_NO;
 B2.AR = S2_NC;
 LED29 = B2;
 
-"Use the seventh DIP switch to choose which way the counters will go
+//Use the seventh DIP switch to choose which way the counters will go
 M = DIP6;
 
-"4-bit binary UP/DOWN counter based on oscillator
+//4-bit binary UP/DOWN counter based on oscillator
 Q0 := !Q0;
 Q1 := Q1 $ (M&Q0 # !M&!Q0);
 Q2 := Q2 $ (M&Q1&Q0 # !M&!Q1&!Q0);
 Q3 := Q3 $ (M&Q2&Q1&Q0 # !M&!Q2&!Q1&!Q0);
 
-"make the output frequency slower
+//make the output frequency slower
 timdiv.clk = tmr_out;
 timdiv := !timdiv;
 
 [Q0, Q1, Q2, Q3].CLK = timdiv;
 
-"Turn off oscillator with second DIP switch
+//Turn off oscillator with second DIP switch
 osc_dis = !DIP1;
 
-"Reset everything to 0 using the first DIP switch
+//Reset everything to 0 using the first DIP switch
 [Q0, Q1, Q2, Q3].AR = DIP0;
 
-"Display on top row of lights
+//Display on top row of lights
 TOPRED = [0,0,0,0, Q3, Q2, Q1, Q0];
 
-"4-bit binary UP/DOWN counter based on switch
+//4-bit binary UP/DOWN counter based on switch
 Q4 := !Q4;
 Q5 := Q5 $ (M&Q4 # !M&!Q4);
 Q6 := Q6 $ (M&Q5&Q4 # !M&!Q5&!Q4);
 Q7 := Q7 $ (M&Q6&Q5&Q4 # !M&!Q6&!Q5&!Q4);
 [Q4, Q5, Q6, Q7].CLK = B2;
 
-"Reset everything to 0 using the first DIP switch
+//Reset everything to 0 using the first DIP switch
 [Q4, Q5, Q6, Q7].AR = DIP0;
 
-"Display on middle row of lights
+//Display on middle row of lights
 MIDRED = [0,0,0,0, Q7, Q6, Q5, Q4];
 
 END

@@ -2,21 +2,21 @@ MODULE isp4256ZEio
 
 TITLE 'isp4256ZE Development Board I/O Configuration'
 
-" Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+// Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
 
 LIBRARY 'lattice';
 
 DECLARATIONS
 
-" Internal Oscillator
+// Internal Oscillator
 
 osc_dis, osc_rst, osc_out, tmr_out node istype 'com';
 
-" Use maximum possible internal divisor -> yields approx 4 Hz output frequency
+// Use maximum possible internal divisor -> yields approx 4 Hz output frequency
 
 XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
 
-" Second row (from top) of red LEDs
+// Second row (from top) of red LEDs
 
 !LED8 pin 139 istype 'com';	"IO_B4   right-most
 !LED9 pin 138 istype 'com';	"IO_B2
@@ -29,38 +29,38 @@ XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
 
 MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
 
-" User-defined variables follow
+// User-defined variables follow
 
 timdiv node istype 'reg_d,buffer';
 
 Q0..Q7 node istype 'reg';
 
-" ======================= START OF EQUATIONS SECTION =================================
+// ======================= START OF EQUATIONS SECTION =================================
 
 EQUATIONS
 
-" Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
+// Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
 
 osc_dis = 0;
 osc_rst = 0;
 
 I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
 
-" User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
 
-"Ring counter
+//Ring counter
 Q7 := Q6;
 Q6 := Q5;
 Q5 := Q4;
 Q4 := Q3;
 Q3 := Q2;
 Q2 := Q1;
-Q2 := Q0;
+Q1 := Q0;
 
-"This makes sure that the counter does not fail
+//This makes sure that the counter does not fail
 Q0 := !(Q6#Q5#Q4#Q3#Q2#Q1#Q0);
 
-"Lowers the speed of the counter
+//Lowers the frequency of the oscillator to slow down the counter
 timdiv.clk = tmr_out;
 timdiv := !timdiv;
 
