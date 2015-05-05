@@ -1,0 +1,434 @@
+MODULE bcdAdder
+
+TITLE 'BCD Adder'
+
+// Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+
+LIBRARY 'lattice';
+
+DECLARATIONS
+
+// Internal Oscillator
+
+osc_dis, osc_rst, osc_out, tmr_out node istype 'com';
+
+// Use maximum possible internal divisor -> yields approx 4 Hz output frequency
+
+XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
+
+// Input pins from DIP switch
+// DOWN - contact closure to ground - logic 0
+// UP - open contact pulled high with resistor - logic 1
+
+DIP0 pin 79;	//IO_K6
+DIP1 pin 78;	//IO_K8
+DIP2 pin 77;	//IO_K10
+DIP3 pin 76;	//IO_K12
+DIP4 pin 23;	//IO_E6
+DIP5 pin 24;	//IO_E8
+DIP6 pin 25;	//IO_E10
+DIP7 pin 26;	//IO_E12
+
+DIP = [DIP7, DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
+
+// SPDT toggle switches (can be used to create bounceless switches)
+// ACTIVE LOW (contact closure to ground, with pull-up)
+!S1_NC pin 58;	//IO_I2   normally closed (down position)
+!S1_NO pin 59;	//IO_I4   normally open (up position)
+!S2_NC pin 60;	//IO_I6   normally closed (down position)
+!S2_NO pin 61;	//IO_I8   normally open (up position)
+
+// Top row of red LEDs
+
+!LED0 pin 40 istype 'com';	//IO_G10  right-most
+!LED1 pin 39 istype 'com';	//IO_G12
+!LED2 pin 33 istype 'com';	//IO_F12
+!LED3 pin 32 istype 'com'; 	//IO_F10
+!LED4 pin 31 istype 'com';	//IO_F8
+!LED5 pin 30 istype 'com';	//IO_F6
+!LED6 pin 29 istype 'com';	//IO_F4
+!LED7 pin 28 istype 'com';	//IO_F2   left-most
+
+TOPRED = [LED7, LED6, LED5, LED4, LED3, LED2, LED1, LED0];
+
+// Second row (from top) of red LEDs
+
+!LED8 pin 139 istype 'com';	//IO_B4   right-most
+!LED9 pin 138 istype 'com';	//IO_B2
+!LED10 pin 135 istype 'com';	//IO_A12
+!LED11 pin 134 istype 'com';	//IO_A10
+!LED12 pin 133 istype 'com';	//IO_A8
+!LED13 pin 132 istype 'com';	//IO_A6
+!LED14 pin 131 istype 'com';	//IO_A4
+!LED15 pin 130 istype 'com';	//IO_A2   left-most
+
+MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
+
+// 7-segment common-anode displays (active low outputs)
+// Right-most display (DIS1)
+
+!DIS1a pin 87 istype 'com';	//IO_L6
+!DIS1b pin 86 istype 'com';	//IO_L8
+!DIS1c pin 85 istype 'com';	//IO_L10
+!DIS1d pin 84 istype 'com';	//IO_L12
+!DIS1e pin 83 istype 'com';	//IO_L14
+!DIS1f pin 81 istype 'com';	//IO_K2
+!DIS1g pin 80 istype 'com';	//IO_K4
+
+DIS1 = [DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g];
+
+// Second-from-right display (DIS2)
+
+!DIS2a pin 98 istype 'com';	//IO_M12
+!DIS2b pin 97 istype 'com';	//IO_M10
+!DIS2c pin 96 istype 'com';	//IO_M8
+!DIS2d pin 95 istype 'com';	//IO_M6
+!DIS2e pin 94 istype 'com';	//IO_M4
+!DIS2f pin 93 istype 'com';	//IO_M2
+!DIS2g pin 88 istype 'com';	//IO_L4
+
+DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
+
+// Second-from-left display (DIS3)
+
+!DIS3a pin 125 istype 'com';	//IO_P2
+!DIS3b pin 124 istype 'com';	//IO_P4
+!DIS3c pin 123 istype 'com';	//IO_P6
+!DIS3d pin 122 istype 'com';  //IO_P8
+!DIS3e pin 121 istype 'com';	//IO_P10
+!DIS3f pin 120 istype 'com';	//IO_P12
+!DIS3g pin 116 istype 'com';	//IO_O2
+
+DIS3 = [DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g];
+
+// Left-most display (DIS4)
+
+!DIS4a pin 44 istype 'com';	//IO_G2
+!DIS4b pin 48 istype 'com';	//IO_H12
+!DIS4c pin 49 istype 'com';	//IO_H10
+!DIS4d pin 50 istype 'com';	//IO_H8
+!DIS4e pin 51 istype 'com';	//IO_H6
+!DIS4f pin 52 istype 'com'; 	//IO_H4
+!DIS4g pin 53 istype 'com';	//IO_H2
+
+DIS4 = [DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g];
+
+// Jumbo R-Y-G LEDs
+!LED16 pin 140 istype 'com';	//IO_B6   RED
+!LED17 pin 141 istype 'com';	//IO_B8   YELLOW
+!LED18 pin 142 istype 'com';	//IO_B10  GREEN
+!LED19 pin 143 istype 'com';	//IO_B12  (unpopulated)
+
+// Bottom row of red LEDs
+
+!LED20 pin 100 istype 'com';	//IO_N2   right-most
+!LED21 pin 101 istype 'com';	//IO_N4
+!LED22 pin 102 istype 'com';	//IO_N6
+!LED23 pin 103 istype 'com';	//IO_N8
+!LED24 pin 104 istype 'com';	//IO_N10
+!LED25 pin 105 istype 'com';	//IO_N12
+!LED26 pin 111 istype 'com';	//IO_O12
+!LED27 pin 112 istype 'com';	//IO_O10  left-most
+
+BOTRED = [LED27, LED26, LED25, LED24, LED23, LED22, LED21, LED20];
+
+// Yellow LEDs next to toggle switches
+!LED28 pin 63 istype 'com';	//IO_I12  right
+!LED29 pin 62 istype 'com';	//IO_I10  left
+
+// 7-segment alphanumeric display code declarations
+blank = [0,0,0,0,0,0,0];  // blank (all off)
+char0 = [1,1,1,1,1,1,0];  // 0
+char1 = [0,1,1,0,0,0,0];  // 1
+char2 = [1,1,0,1,1,0,1];  // 2
+char3 = [1,1,1,1,0,0,1];  // 3
+char4 = [0,1,1,0,0,1,1];  // 4
+char5 = [1,0,1,1,0,1,1];  // 5
+char6 = [1,0,1,1,1,1,1];  // 6
+char7 = [1,1,1,0,0,0,0];  // 7
+char8 = [1,1,1,1,1,1,1];  // 8
+char9 = [1,1,1,1,0,1,1];  // 9
+charA = [1,1,1,0,1,1,1];  // A
+charB = [0,0,1,1,1,1,1];  // b
+charC = [1,0,0,1,1,1,0];  // C
+charD = [0,1,1,1,1,0,1];  // d
+charE = [1,0,0,1,1,1,1];  // E
+charF = [1,0,0,0,1,1,1];  // F
+charG = [1,1,1,1,0,1,1];  // g
+charH = [0,1,1,0,1,1,1];  // H
+charI = [0,0,1,0,0,0,0];  // i
+charJ = [0,1,1,1,0,0,0];  // J
+charL = [0,0,0,1,1,1,0];  // L
+charN = [0,0,1,0,1,0,1];  // n
+charO = [0,0,1,1,1,0,1];  // o
+charP = [1,1,0,0,1,1,1];  // P
+charR = [0,0,0,0,1,0,1];  // r
+charS = [1,0,1,1,0,1,1];  // S
+charU = [0,1,1,1,1,1,0];  // U
+charY = [0,1,1,1,0,1,1];  // y
+
+// Bounceless switches
+
+S1BC node istype 'reg_D,buffer';
+S2BC node istype 'reg_D,buffer';
+
+// User-defined variables follow
+
+// Note - these should all be declared as NODES (*not* PINS)
+X0..X3 node istype 'com';
+Y0..Y3 node istype 'com';
+X = [X3..X0];
+Y = [Y3..Y0];
+
+//Adder and subtractor
+C0..C3 node istype 'com'; //carries
+S0..S3 node istype 'com'; //sums
+CF,NF,ZF,VF node istype 'com';
+SUM = [S3..S0];
+CIN = 1;
+
+//Generates
+G0 = X0&(Y0$CIN);
+G1 = X1&(Y1$CIN);
+G2 = X2&(Y2$CIN);
+G3 = X3&(Y3$CIN);
+
+//Propagates
+P0 = X0$(Y0$CIN);
+P1 = X1$(Y1$CIN);
+P2 = X2$(Y2$CIN);
+P3 = X3$(Y3$CIN);
+
+//Shift register
+SR0..SR3 node istype 'reg';
+SR =[SR3..SR0];
+
+//up counter
+Q0..Q3 node istype 'reg';
+Q = [Q3..Q0];
+
+//Counters for ones and tens digit
+B0..B4 node istype 'com'; // operands
+O0..O3 pin istype 'reg'; // sum outputs
+B = [B4..B0]; // input operand set definition
+O = [O3..O0]; // output sum set definition
+
+T0..T3 pin istype 'reg'; // sum outputs
+T = [T3..T0]; // output sum set definition
+
+rDIS1a, rDIS1b, rDIS1c, rDIS1d, rDIS1e, rDIS1f, rDIS1g node istype 'com';
+rDIS1 = [rDIS1a, rDIS1b, rDIS1c, rDIS1d, rDIS1e, rDIS1f, rDIS1g];
+
+rDIS2a, rDIS2b, rDIS2c, rDIS2d, rDIS2e, rDIS2f, rDIS2g node istype 'reg';
+rDIS2 = [rDIS2a, rDIS2b, rDIS2c, rDIS2d, rDIS2e, rDIS2f, rDIS2g];
+
+rDIS3a, rDIS3b, rDIS3c, rDIS3d, rDIS3e, rDIS3f, rDIS3g node istype 'reg';
+rDIS3 = [rDIS3a, rDIS3b, rDIS3c, rDIS3d, rDIS3e, rDIS3f, rDIS3g];
+
+rDIS4a, rDIS4b, rDIS4c, rDIS4d, rDIS4e, rDIS4f, rDIS4g node istype 'reg';
+rDIS4 = [rDIS4a, rDIS4b, rDIS4c, rDIS4d, rDIS4e, rDIS4f, rDIS4g];
+
+f0..f6 node istype 'com';
+n0..n6 node istype 'com';
+f = [f6..f0];
+n = [n6..n0];
+
+STA0..STA3 node istype 'reg';
+STA = [STA3..STA0];
+A0 = [0, 0, 0, 0];
+A1 = [0, 0, 0, 1];
+A2 = [0, 0, 1, 0];
+A3 = [0, 0, 1, 1];
+A4 = [0, 1, 0, 0];
+A5 = [0, 1, 0, 1];
+A6 = [0, 1, 1, 0];
+A7 = [0, 1, 1, 1];
+A8 = [1, 0, 0, 0];
+A9 = [1, 0, 0, 1];
+A10 = [1, 0, 1, 0];
+A11 = [1, 0, 1, 1];
+A12 = [1, 1, 0, 0];
+
+_timdiv node istype 'reg_D,buffer';
+timdiv node istype 'reg_D,buffer';
+
+// ======================= START OF EQUATIONS SECTION =================================
+
+EQUATIONS
+
+// Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
+
+osc_dis = 0;
+osc_rst = 0;
+
+I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
+
+_timdiv.clk = tmr_out;
+_timdiv := !_timdiv;
+
+timdiv.clk = _timdiv;
+timdiv := !timdiv;
+
+// Bounceless switches (S1 and S2)
+
+S1BC.d = 0;
+S1BC.clk = 0;
+S1BC.ap = S1_NO;
+S1BC.ar = S1_NC;
+LED28 = S1BC.q;
+
+S2BC.d = 0;
+S2BC.clk = 0;
+S2BC.ap = S2_NO;
+S2BC.ar = S2_NC;
+LED29 = S2BC.q;
+
+
+// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+//finding sum/diff
+Y = [DIP3..DIP0];
+
+C0 = G0 # CIN&P0;
+C1 = G1 # G0&P1 # CIN&P0&P1;
+C2 = G2 # G1&P2 # G0&P1&P2 # CIN&P0&P1&P2;
+C3 = G3 # G2&P3 # G1&P2&P3 # G0&P1&P2&P3 # CIN&P0&P1&P2&P3;
+
+S0 = CIN$P0;
+S1 = C0$P1;
+S2 = C1$P2;
+S3 = C2$P3;
+
+//Flags
+NF = S3;
+VF = C3 $ C2;
+CF = CIN $ C3;
+ZF = !(S0#S1#S2#S3);
+
+LED7 = CF;
+LED6 = NF;
+LED5 = ZF;
+LED4 = VF;
+
+[LED3..LED0] = SUM;
+
+LED16 = VF&NF # !VF&!NF&!ZF;
+LED17 = NF $ VF;
+LED18 = ZF;
+
+//left shift register
+SR0 := (SR2$SR3) $ (!SR2&!SR1&!SR0);
+SR1 := SR0;
+SR2 := SR1;
+SR3 := SR2;
+
+SR.clk = S1BC;
+SR.ar = S2BC;
+X = SR;
+[LED11..LED8] = SR & DIP7;
+
+//counter
+Q0 := !Q0;
+Q1 := Q1 $ Q0;
+Q2 := Q2 $ (Q1&Q0);
+Q3 := Q3 $ (Q2&Q1&Q0);
+
+Q0.ap = S2BC;
+[Q3..Q1].ar = S2BC;
+Q.clk = S1BC;
+Q.ce = !(Q3&!Q2&Q1&!Q0);
+
+DIS4 = (Q==1)&(char1) #
+       (Q==2)&(char2) #
+       (Q==3)&(char3) #
+       (Q==4)&(char4) #
+       (Q==5)&(char5) #
+       (Q==6)&(char6) #
+       (Q==7)&(char7) #
+       (Q==8)&(char8) #
+       (Q==9)&(char9) #
+       (Q==10)&(rDIS4);
+
+//BCD adder
+//Adds 0 if the guess is greate than the actual price
+//Adds 4 if the guess is less than the actual price
+//Adds 9 if the guess is equal to the actual price
+B = [0,O3,O2,O1,O0] + ([0,0,0,0,0]&(VF&NF # !VF&!NF&!ZF) # [0,0,1,0,0]&(NF $ VF) # [0,1,0,0,1]&(ZF));
+
+//ones digit
+O := [B3..B0] + ([0,1,1,0]&(B>[0,1,0,0,1]));
+O.clk = S1BC & (Q != 10);
+O.ar = S2BC;
+//Tens digit
+T := T + [0,0,0,(B>[0,1,0,0,1])];
+T.clk = S1BC & (Q != 10);
+T.ar = S2BC;
+
+f =    (O==0)&(char0) #
+       (O==1)&(char1) #
+       (O==2)&(char2) #
+       (O==3)&(char3) #
+       (O==4)&(char4) #
+       (O==5)&(char5) #
+       (O==6)&(char6) #
+       (O==7)&(char7) #
+       (O==8)&(char8) #
+       (O==9)&(char9);
+
+n =    (T==0)&(char0) #
+       (T==1)&(char1) #
+       (T==2)&(char2) #
+       (T==3)&(char3) #
+       (T==4)&(char4) #
+       (T==5)&(char5) #
+       (T==6)&(char6) #
+       (T==7)&(char7) #
+       (T==8)&(char8) #
+       (T==9)&(char9);
+
+STA.clk = timdiv & (Q == 10);
+STA.ar = S2BC;
+
+//Scrolling display
+rDIS4 := rDIS3;
+rDIS3 := rDIS2;
+rDIS2 := rDIS1;
+
+rDIS2.clk = timdiv;
+rDIS3.clk = timdiv;
+rDIS4.clk = timdiv;
+
+DIS1 = (Q==10)&rDIS1 # (Q!=10)&f;
+DIS2 = (Q==10)&rDIS2 # (Q!=10)&n;
+DIS3 = rDIS3;
+
+rDIS1 = (STA==0)&(blank) #
+    	(STA==1)&n #
+    	(STA==2)&f #
+    	(STA==3)&(blank) #
+    	(STA==4)&(charY) #
+    	(STA==5)&(charE) #
+    	(STA==6)&(charA) #
+    	(STA==7)&(charH) #
+    	(STA==8)&(charL) #
+    	(STA==9)&(charO) #
+    	(STA==10)&(charS) #
+    	(STA==11)&(charE) #
+    	(STA==12)&(charR);
+
+STATE_DIAGRAM STA
+state A0: goto A1;
+state A1: goto A2;
+state A2: goto A3;
+state A3: if T > 4 then A4;
+	  else A8;
+state A4: goto A5;
+state A5: goto A6;
+state A6: goto A7;
+state A7: goto A0;
+state A8: goto A9;
+state A9: goto A10;
+state A10: goto A11;
+state A11: goto A12;
+state A12: goto A0;
+
+END
