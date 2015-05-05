@@ -28,7 +28,8 @@ The ALU utilizes radix arithmetic (two's complement) and has four control signal
 * **AOE:** *A-REGISTER output to the data bus*
 
 The ALU functions according to the following description:
-| :ALE: | :ALX: | :ALY: | :Mnemonic: | :Function Performed:       | :CF: | :NF: | :ZF: | :VF: |
+|  ALE  |  ALX  |  ALY  |  Mnemonic  |    Function Performed      |  CF  |  NF  |  ZF  |  VF  |
+| :---: | :---: | :---: | :--------: | :------------------------: | :--: | :--: | :--: | :--: |
 | 0     | d     | d     | -          | *stay in the same state*   | -    | -    | -    | -    |
 | 1     | 0     | 0     | ADD        | (A) <- (A) + (*data bus*)  | *    |  *   | *    | *    |
 | 1     | 0     | 1     | SUB        | (A) <- (A) - (*data bus*)  | *    | *    | *    | *    |
