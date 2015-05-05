@@ -1,0 +1,363 @@
+MODULE Character Sequence Generator
+
+TITLE 'Character Sequence Generator'
+
+// Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+
+LIBRARY 'lattice';
+
+DECLARATIONS
+
+// Internal Oscillator
+
+osc_dis, osc_rst, osc_out, tmr_out node istype 'com';
+
+// Use maximum possible internal divisor -> yields approx 4 Hz output frequency
+
+XLAT_OSCTIMER(DYNOSCDIS, TIMERRES, OSCOUT, TIMEROUT, 1048576);
+
+// Input pins from DIP switch
+// DOWN - contact closure to ground - logic 0
+// UP - open contact pulled high with resistor - logic 1
+
+DIP0 pin 79;	//IO_K6
+DIP1 pin 78;	//IO_K8
+DIP2 pin 77;	//IO_K10
+DIP3 pin 76;	//IO_K12
+DIP4 pin 23;	//IO_E6
+DIP5 pin 24;	//IO_E8
+DIP6 pin 25;	//IO_E10
+DIP7 pin 26;	//IO_E12
+
+DIP = [DIP7, DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
+
+// SPDT toggle switches (can be used to create bounceless switches)
+// ACTIVE LOW (contact closure to ground, with pull-up)
+!S1_NC pin 58;	//IO_I2   normally closed (down position)
+!S1_NO pin 59;	//IO_I4   normally open (up position)
+!S2_NC pin 60;	//IO_I6   normally closed (down position)
+!S2_NO pin 61;	//IO_I8   normally open (up position)
+
+// Top row of red LEDs
+
+!LED0 pin 40 istype 'com';	//IO_G10  right-most
+!LED1 pin 39 istype 'com';	//IO_G12
+!LED2 pin 33 istype 'com';	//IO_F12
+!LED3 pin 32 istype 'com'; 	//IO_F10
+!LED4 pin 31 istype 'com';	//IO_F8
+!LED5 pin 30 istype 'com';	//IO_F6
+!LED6 pin 29 istype 'com';	//IO_F4
+!LED7 pin 28 istype 'com';	//IO_F2   left-most
+
+TOPRED = [LED7, LED6, LED5, LED4, LED3, LED2, LED1, LED0];
+
+// Second row (from top) of red LEDs
+
+!LED8 pin 139 istype 'com';	//IO_B4   right-most
+!LED9 pin 138 istype 'com';	//IO_B2
+!LED10 pin 135 istype 'com';	//IO_A12
+!LED11 pin 134 istype 'com';	//IO_A10
+!LED12 pin 133 istype 'com';	//IO_A8
+!LED13 pin 132 istype 'com';	//IO_A6
+!LED14 pin 131 istype 'com';	//IO_A4
+!LED15 pin 130 istype 'com';	//IO_A2   left-most
+
+MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
+
+// 7-segment common-anode displays (active low outputs)
+// Right-most display (DIS1)
+
+!DIS1a pin 87 istype 'com';	//IO_L6
+!DIS1b pin 86 istype 'com';	//IO_L8
+!DIS1c pin 85 istype 'com';	//IO_L10
+!DIS1d pin 84 istype 'com';	//IO_L12
+!DIS1e pin 83 istype 'com';	//IO_L14
+!DIS1f pin 81 istype 'com';	//IO_K2
+!DIS1g pin 80 istype 'com';	//IO_K4
+
+DIS1 = [DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g];
+
+// Second-from-right display (DIS2)
+
+!DIS2a pin 98 istype 'com';	//IO_M12
+!DIS2b pin 97 istype 'com';	//IO_M10
+!DIS2c pin 96 istype 'com';	//IO_M8
+!DIS2d pin 95 istype 'com';	//IO_M6
+!DIS2e pin 94 istype 'com';	//IO_M4
+!DIS2f pin 93 istype 'com';	//IO_M2
+!DIS2g pin 88 istype 'com';	//IO_L4
+
+DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
+
+// Second-from-left display (DIS3)
+
+!DIS3a pin 125 istype 'com';	//IO_P2
+!DIS3b pin 124 istype 'com';	//IO_P4
+!DIS3c pin 123 istype 'com';	//IO_P6
+!DIS3d pin 122 istype 'com';  //IO_P8
+!DIS3e pin 121 istype 'com';	//IO_P10
+!DIS3f pin 120 istype 'com';	//IO_P12
+!DIS3g pin 116 istype 'com';	//IO_O2
+
+DIS3 = [DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g];
+
+// Left-most display (DIS4)
+
+!DIS4a pin 44 istype 'com';	//IO_G2
+!DIS4b pin 48 istype 'com';	//IO_H12
+!DIS4c pin 49 istype 'com';	//IO_H10
+!DIS4d pin 50 istype 'com';	//IO_H8
+!DIS4e pin 51 istype 'com';	//IO_H6
+!DIS4f pin 52 istype 'com'; 	//IO_H4
+!DIS4g pin 53 istype 'com';	//IO_H2
+
+DIS4 = [DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g];
+
+// Jumbo R-Y-G LEDs
+!LED16 pin 140 istype 'com';	//IO_B6   RED
+!LED17 pin 141 istype 'com';	//IO_B8   YELLOW
+!LED18 pin 142 istype 'com';	//IO_B10  GREEN
+!LED19 pin 143 istype 'com';	//IO_B12  (unpopulated)
+
+// Bottom row of red LEDs
+
+!LED20 pin 100 istype 'com';	//IO_N2   right-most
+!LED21 pin 101 istype 'com';	//IO_N4
+!LED22 pin 102 istype 'com';	//IO_N6
+!LED23 pin 103 istype 'com';	//IO_N8
+!LED24 pin 104 istype 'com';	//IO_N10
+!LED25 pin 105 istype 'com';	//IO_N12
+!LED26 pin 111 istype 'com';	//IO_O12
+!LED27 pin 112 istype 'com';	//IO_O10  left-most
+
+BOTRED = [LED27, LED26, LED25, LED24, LED23, LED22, LED21, LED20];
+
+// Yellow LEDs next to toggle switches
+!LED28 pin 63 istype 'com';	//IO_I12  right
+!LED29 pin 62 istype 'com';	//IO_I10  left
+
+// 7-segment alphanumeric display code declarations
+blank = [0,0,0,0,0,0,0];  // blank (all off)
+char0 = [1,1,1,1,1,1,0];  // 0
+char1 = [0,1,1,0,0,0,0];  // 1
+char2 = [1,1,0,1,1,0,1];  // 2
+char3 = [1,1,1,1,0,0,1];  // 3
+char4 = [0,1,1,0,0,1,1];  // 4
+char5 = [1,0,1,1,0,1,1];  // 5
+char6 = [1,0,1,1,1,1,1];  // 6
+char7 = [1,1,1,0,0,0,0];  // 7
+char8 = [1,1,1,1,1,1,1];  // 8
+char9 = [1,1,1,1,0,1,1];  // 9
+charA = [1,1,1,0,1,1,1];  // A
+charB = [0,0,1,1,1,1,1];  // b
+charC = [1,0,0,1,1,1,0];  // C
+charD = [0,1,1,1,1,0,1];  // d
+charE = [1,0,0,1,1,1,1];  // E
+charF = [1,0,0,0,1,1,1];  // F
+charG = [1,1,1,1,0,1,1];  // g
+charH = [0,1,1,0,1,1,1];  // H
+charI = [0,0,1,0,0,0,0];  // i
+charJ = [0,1,1,1,0,0,0];  // J
+charL = [0,0,0,1,1,1,0];  // L
+charN = [0,0,1,0,1,0,1];  // n
+charO = [0,0,1,1,1,0,1];  // o
+charP = [1,1,0,0,1,1,1];  // P
+charR = [0,0,0,0,1,0,1];  // r
+charS = [1,0,1,1,0,1,1];  // S
+charU = [0,1,1,1,1,1,0];  // U
+charY = [0,1,1,1,0,1,1];  // y
+
+// User-defined variables follow
+
+// Note - these should all be declared as NODES (*not* PINS)
+_timdiv node istype 'reg_D,buffer';
+timdiv node istype 'reg_D,buffer';
+
+Q0..Q4 node istype 'reg';
+Q = [Q4..Q0];
+
+//states
+A0 = [0, 0, 0, 0, 0];
+A1 = [0, 0, 0, 0, 1];
+A2 = [0, 0, 0, 1, 0];
+A3 = [0, 0, 0, 1, 1];
+A4 = [0, 0, 1, 0, 0];
+A5 = [0, 0, 1, 0, 1];
+A6 = [0, 0, 1, 1, 0];
+A7 = [0, 0, 1, 1, 1];
+A8 = [0, 1, 0, 0, 0];
+A9 = [0, 1, 0, 0, 1];
+A10 =[0, 1, 0, 1, 0];
+A11 =[0, 1, 0, 1, 1];
+A12 =[0, 1, 1, 0, 0];
+A13 =[0, 1, 1, 0, 1];
+A14 =[0, 1, 1, 1, 0];
+A15 =[0, 1, 1, 1, 1];
+A16 = [1, 0, 0, 0, 0];
+A17 = [1, 0, 0, 0, 1];
+A18 = [1, 0, 0, 1, 0];
+A19 = [1, 0, 0, 1, 1];
+A20 = [1, 0, 1, 0, 0];
+A21 = [1, 0, 1, 0, 1];
+A22 = [1, 0, 1, 1, 0];
+A23 = [1, 0, 1, 1, 1];
+A24 = [1, 1, 0, 0, 0];
+A25 = [1, 1, 0, 0, 1];
+A26 = [1, 1, 0, 1, 0];
+A27 = [1, 1, 0, 1, 1];
+A28 = [1, 1, 1, 0, 0];
+A29 = [1, 1, 1, 0, 1];
+A30 = [1, 1, 1, 1, 0];
+A31 = [1, 1, 1, 1, 1];
+
+//display
+pDIS1a, pDIS1b, pDIS1c, pDIS1d, pDIS1e, pDIS1f, pDIS1g node istype 'com';
+pDIS2a, pDIS2b, pDIS2c, pDIS2d, pDIS2e, pDIS2f, pDIS2g node istype 'reg';
+pDIS3a, pDIS3b, pDIS3c, pDIS3d, pDIS3e, pDIS3f, pDIS3g node istype 'reg';
+pDIS4a, pDIS4b, pDIS4c, pDIS4d, pDIS4e, pDIS4f, pDIS4g node istype 'reg';
+pDIS1 = [pDIS1a, pDIS1b, pDIS1c, pDIS1d, pDIS1e, pDIS1f, pDIS1g];
+pDIS2 = [pDIS2a, pDIS2b, pDIS2c, pDIS2d, pDIS2e, pDIS2f, pDIS2g];
+pDIS3 = [pDIS3a, pDIS3b, pDIS3c, pDIS3d, pDIS3e, pDIS3f, pDIS3g];
+pDIS4 = [pDIS4a, pDIS4b, pDIS4c, pDIS4d, pDIS4e, pDIS4f, pDIS4g];
+// ======================= START OF EQUATIONS SECTION =================================
+
+EQUATIONS
+
+// Internal oscillator setup (disable/enable and reset variables) and OSCTIMER instance
+
+osc_dis = 0;
+osc_rst = 0;
+
+I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
+
+// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+
+_timdiv.clk = tmr_out;
+_timdiv := !_timdiv;
+timdiv.clk = _timdiv;
+timdiv := !timdiv;
+
+LED28 = timdiv;
+
+//Scrolling display shift register
+pDIS4 := pDIS3;
+pDIS3 := pDIS2;
+pDIS2 := pDIS1;
+
+pDIS2.clk = timdiv;
+pDIS3.clk = timdiv;
+pDIS4.clk = timdiv;
+
+DIS1 = pDIS1;
+DIS2 = pDIS2;
+DIS3 = pDIS3;
+DIS4 = pDIS4;
+
+Q.clk = timdiv;
+Q.ar = DIP7;
+
+//Character sequence generator
+STATE_DIAGRAM Q
+
+state A0: 	if (DIP0 == 0) & (DIP1 == 0) then A1
+	   else if (DIP0 == 0) & (DIP1 == 1) then A10
+	   else if (DIP0 == 1) & (DIP1 == 0) then A15
+	   else if (DIP0 == 1) & (DIP1 == 1) then A24;
+
+state A1:       if (DIP0 == 0) & (DIP1 == 0) then A2
+		else A0;
+state A2:       if (DIP0 == 0) & (DIP1 == 0) then A3
+		else A0;
+state A3:       if (DIP0 == 0) & (DIP1 == 0) then A4
+		else A0;
+state A4:       if (DIP0 == 0) & (DIP1 == 0) then A5
+		else A0;
+state A5:       if (DIP0 == 0) & (DIP1 == 0) then A6
+		else A0;
+state A6:       if (DIP0 == 0) & (DIP1 == 0) then A7
+		else A0;
+state A7:       if (DIP0 == 0) & (DIP1 == 0) then A8
+		else A0;
+state A8:       if (DIP0 == 0) & (DIP1 == 0) then A9
+		else A0;
+state A9:       goto A0;
+
+state A10:      if (DIP0 == 0) & (DIP1 == 1) then A11
+		else A0;
+state A11:      if (DIP0 == 0) & (DIP1 == 1) then A12
+		else A0;
+state A12:      if (DIP0 == 0) & (DIP1 == 1) then A13
+		else A0;
+state A13:      if (DIP0 == 0) & (DIP1 == 1) then A14
+		else A0;
+state A14:      goto A0;
+
+state A15:      if (DIP0 == 1) & (DIP1 == 0) then A16
+		else A0;
+state A16:      if (DIP0 == 1) & (DIP1 == 0) then A17
+		else A0;
+state A17:      if (DIP0 == 1) & (DIP1 == 0) then A18
+		else A0;
+state A18:      if (DIP0 == 1) & (DIP1 == 0) then A19
+		else A0;
+state A19:      if (DIP0 == 1) & (DIP1 == 0) then A20
+		else A0;
+state A20:      if (DIP0 == 1) & (DIP1 == 0) then A21
+		else A0;
+state A21:      if (DIP0 == 1) & (DIP1 == 0) then A22
+		else A0;
+state A22:      if (DIP0 == 1) & (DIP1 == 0) then A23
+		else A0;
+state A23:      goto A0;
+
+state A24:      if (DIP0 == 1) & (DIP1 == 1) then A25
+		else A0;
+state A25:      if (DIP0 == 1) & (DIP1 == 1) then A26
+		else A0;
+state A26:      if (DIP0 == 1) & (DIP1 == 1) then A27
+		else A0;
+state A27:      if (DIP0 == 1) & (DIP1 == 1) then A28
+		else A0;
+state A28:      if (DIP0 == 1) & (DIP1 == 1) then A29
+		else A0;
+state A29:      if (DIP0 == 1) & (DIP1 == 1) then A30
+		else A0;
+state A30:      if (DIP0 == 1) & (DIP1 == 1) then A31
+		else A0;
+state A31:      goto A0;
+
+TRUTH_TABLE ([Q] -> [pDIS1])
+	     [A0] -> [blank];
+	     [A1] -> [charG];
+	     [A2] -> [charO];
+	     [A3] -> [blank];
+	     [A4] -> [charP];
+	     [A5] -> [charU];
+	     [A6] -> [charR];
+	     [A7] -> [charD];
+	     [A8] -> [charU];
+	     [A9] -> [charE];
+	     [A10] -> [charN];
+	     [A11] -> [charO];
+	     [A12] -> [charI];
+	     [A13] -> [charS];
+	     [A14] -> [charE];
+	     [A15] -> [charB];
+	     [A16] -> [charO];
+	     [A17] -> [charI];
+	     [A18] -> [charL];
+	     [A19] -> [charE];
+	     [A20] -> [charR];
+	     [A21] -> [blank];
+	     [A22] -> [charU];
+	     [A23] -> [charP];
+	     [A24] -> [charR];
+	     [A25] -> [charA];
+	     [A26] -> [charU];
+	     [A27] -> [charL];
+	     [A28] -> [blank];
+	     [A29] -> [charB];
+	     [A30] -> [charI];
+	     [A31] -> [charG];
+
+END
