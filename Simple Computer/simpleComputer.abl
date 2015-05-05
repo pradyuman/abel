@@ -1,0 +1,536 @@
+MODULE simpleCompuer
+
+TITLE 'Simple Computer'
+
+// Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
+
+LIBRARY 'lattice';
+
+DECLARATIONS
+
+// Input pins from DIP switch
+// DOWN - contact closure to ground - logic 0
+// UP - open contact pulled high with resistor - logic 1
+
+DIP0 pin 79;	//IO_K6
+DIP1 pin 78;	//IO_K8
+DIP2 pin 77;	//IO_K10
+DIP3 pin 76;	//IO_K12
+DIP4 pin 23;	//IO_E6
+DIP5 pin 24;	//IO_E8
+DIP6 pin 25;	//IO_E10
+DIP7 pin 26;	//IO_E12
+
+DIP = [DIP7, DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
+DIPD = [DIP6, DIP5, DIP4, DIP3, DIP2, DIP1, DIP0];
+
+// SPDT toggle switches (can be used to create bounceless switches)
+// ACTIVE LOW (contact closure to ground, with pull-up)
+!S1_NC pin 58;	//IO_I2   normally closed (down position)
+!S1_NO pin 59;	//IO_I4   normally open (up position)
+!S2_NC pin 60;	//IO_I6   normally closed (down position)
+!S2_NO pin 61;	//IO_I8   normally open (up position)
+
+// Top row of red LEDs
+
+!LED0 pin 40 istype 'com';	//IO_G10  right-most
+!LED1 pin 39 istype 'com';	//IO_G12
+!LED2 pin 33 istype 'com';	//IO_F12
+!LED3 pin 32 istype 'com'; 	//IO_F10
+!LED4 pin 31 istype 'com';	//IO_F8
+!LED5 pin 30 istype 'com';	//IO_F6
+!LED6 pin 29 istype 'com';	//IO_F4
+!LED7 pin 28 istype 'com';	//IO_F2   left-most
+
+TOPRED = [LED7, LED6, LED5, LED4, LED3, LED2, LED1, LED0];
+
+// Second row (from top) of red LEDs
+
+!LED8 pin 139 istype 'com';	//IO_B4   right-most
+!LED9 pin 138 istype 'com';	//IO_B2
+!LED10 pin 135 istype 'com';	//IO_A12
+!LED11 pin 134 istype 'com';	//IO_A10
+!LED12 pin 133 istype 'com';	//IO_A8
+!LED13 pin 132 istype 'com';	//IO_A6
+!LED14 pin 131 istype 'com';	//IO_A4
+!LED15 pin 130 istype 'com';	//IO_A2   left-most
+
+MIDRED = [LED15, LED14, LED13, LED12, LED11, LED10, LED9, LED8];
+
+// 7-segment common-anode displays (active low outputs)
+// Right-most display (DIS1)
+
+!DIS1a pin 87 istype 'com';	//IO_L6
+!DIS1b pin 86 istype 'com';	//IO_L8
+!DIS1c pin 85 istype 'com';	//IO_L10
+!DIS1d pin 84 istype 'com';	//IO_L12
+!DIS1e pin 83 istype 'com';	//IO_L14
+!DIS1f pin 81 istype 'com';	//IO_K2
+!DIS1g pin 80 istype 'com';	//IO_K4
+
+DIS1 = [DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g];
+
+// Second-from-right display (DIS2)
+
+!DIS2a pin 98 istype 'com';	//IO_M12
+!DIS2b pin 97 istype 'com';	//IO_M10
+!DIS2c pin 96 istype 'com';	//IO_M8
+!DIS2d pin 95 istype 'com';	//IO_M6
+!DIS2e pin 94 istype 'com';	//IO_M4
+!DIS2f pin 93 istype 'com';	//IO_M2
+!DIS2g pin 88 istype 'com';	//IO_L4
+
+DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
+
+// Second-from-left display (DIS3)
+
+!DIS3a pin 125 istype 'com';	//IO_P2
+!DIS3b pin 124 istype 'com';	//IO_P4
+!DIS3c pin 123 istype 'com';	//IO_P6
+!DIS3d pin 122 istype 'com';  //IO_P8
+!DIS3e pin 121 istype 'com';	//IO_P10
+!DIS3f pin 120 istype 'com';	//IO_P12
+!DIS3g pin 116 istype 'com';	//IO_O2
+
+DIS3 = [DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g];
+
+// Left-most display (DIS4)
+
+!DIS4a pin 44 istype 'com';	//IO_G2
+!DIS4b pin 48 istype 'com';	//IO_H12
+!DIS4c pin 49 istype 'com';	//IO_H10
+!DIS4d pin 50 istype 'com';	//IO_H8
+!DIS4e pin 51 istype 'com';	//IO_H6
+!DIS4f pin 52 istype 'com'; 	//IO_H4
+!DIS4g pin 53 istype 'com';	//IO_H2
+
+DIS4 = [DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g];
+
+// Jumbo R-Y-G LEDs
+!LED16 pin 140 istype 'com';	//IO_B6   RED
+!LED17 pin 141 istype 'com';	//IO_B8   YELLOW
+!LED18 pin 142 istype 'com';	//IO_B10  GREEN
+!LED19 pin 143 istype 'com';	//IO_B12  (unpopulated)
+
+// Bottom row of red LEDs
+
+!LED20 pin 100 istype 'com';	//IO_N2   right-most
+!LED21 pin 101 istype 'com';	//IO_N4
+!LED22 pin 102 istype 'com';	//IO_N6
+!LED23 pin 103 istype 'com';	//IO_N8
+!LED24 pin 104 istype 'com';	//IO_N10
+!LED25 pin 105 istype 'com';	//IO_N12
+!LED26 pin 111 istype 'com';	//IO_O12
+!LED27 pin 112 istype 'com';	//IO_O10  left-most
+
+BOTRED = [LED27, LED26, LED25, LED24, LED23, LED22, LED21, LED20];
+
+// Yellow LEDs next to toggle switches
+!LED28 pin 63 istype 'com';	//IO_I12  right
+!LED29 pin 62 istype 'com';	//IO_I10  left
+
+
+// bounceless switches
+
+S1BC node istype 'reg_D,buffer';
+S2BC node istype 'reg_D,buffer';
+
+// 14 location X 7-bit memory
+
+m0q6..m0q0 node istype 'reg_D,buffer';
+m1q6..m1q0 node istype 'reg_D,buffer';
+m2q6..m2q0 node istype 'reg_D,buffer';
+m3q6..m3q0 node istype 'reg_D,buffer';
+m4q6..m4q0 node istype 'reg_D,buffer';
+m5q6..m5q0 node istype 'reg_D,buffer';
+m6q6..m6q0 node istype 'reg_D,buffer';
+m7q6..m7q0 node istype 'reg_D,buffer';
+m8q6..m8q0 node istype 'reg_D,buffer';
+m9q6..m9q0 node istype 'reg_D,buffer';
+m10q6..m10q0 node istype 'reg_D,buffer';
+m11q6..m11q0 node istype 'reg_D,buffer';
+m12q6..m12q0 node istype 'reg_D,buffer';
+m13q6..m13q0 node istype 'reg_D,buffer';
+
+// memory locations
+
+M0 = [m0q6..m0q0];
+M1 = [m1q6..m1q0];
+M2 = [m2q6..m2q0];
+M3 = [m3q6..m3q0];
+M4 = [m4q6..m4q0];
+M5 = [m5q6..m5q0];
+M6 = [m6q6..m6q0];
+M7 = [m7q6..m7q0];
+M8 = [m8q6..m8q0];
+M9 = [m9q6..m9q0];
+M10 = [m10q6..m10q0];
+M11 = [m11q6..m11q0];
+M12 = [m12q6..m12q0];
+M13 = [m13q6..m13q0];
+
+// memory clocking signal
+
+memclk node istype 'com';
+
+// CPU clocking signal
+
+cpuclk node istype 'com';
+
+// CPU asynchronous reset (START)
+
+start node istype 'com';
+
+// run/stop state
+
+run node istype 'reg_D,buffer';
+
+// state counter (fetch/execute)
+
+sq node istype 'reg_D,buffer';
+
+// address bus
+
+ab3..ab0 node istype 'com';
+AB = [ab3..ab0];
+
+// program counter
+
+pc3..pc0 node istype 'reg_D,buffer';
+PC = [pc3..pc0];
+pcc = !sq;
+
+// instruction register
+
+ir6..ir0 node istype 'reg_D,buffer';
+IR = [ir6..ir0];
+irl = !sq;
+
+// arithmetic logic unit
+
+ale,alx,aly node istype 'com';
+alu3..alu0 node istype 'com';
+ALU = [alu3..alu0];
+
+// accumulator (A) register
+
+areg3..areg0 node istype 'reg_D,buffer';
+AREG = [areg3..areg0];
+
+// CPU data bus
+
+db6..db0 node istype 'com';  // data bus
+DB = [db6..db0];
+dba = [db3..db0];
+
+// memory display bus
+
+dm6..dm0 node istype 'com';  // memory edit data bus
+DM = [dm6..dm0];
+
+// memory address register (for edit mode)
+
+mar3..mar0 node istype 'reg_D,buffer';
+MAR = [mar3..mar0];
+
+// output port
+
+op3..op0 node istype 'reg_D,buffer';
+OUTP = [op3..op0];
+
+// CLA variables
+
+CIN = aly;
+
+S3..S0 node istype 'com'; // sum bits
+C3..C0 node istype 'com'; // carry bits
+P3..P0 node istype 'com'; // propagate functions
+G3..G0 node istype 'com'; // generate functions
+
+SUM = [S3..S0];
+
+// condition code register
+
+CF,NF,ZF,VF node istype 'reg_D,buffer';
+
+// RAULMATIC 714 opcode definitions
+
+HLT = !ir6&!ir5&!ir4;  // opcode 000
+LDA = !ir6&!ir5& ir4;  // opcode 001
+ADD = !ir6& ir5&!ir4;  // opcode 010
+SUB = !ir6& ir5& ir4;  // opcode 011
+AND =  ir6&!ir5&!ir4;  // opcode 100
+STA =  ir6&!ir5& ir4;  // opcode 101
+INA =  ir6& ir5&!ir4;  // opcode 110
+OUT =  ir6& ir5& ir4;  // opcode 111
+
+
+// ======================= START OF EQUATIONS SECTION =================================
+
+EQUATIONS
+
+// bounceless switches
+
+S1BC.d = 0;
+S1BC.clk = 0;
+S1BC.ap = S1_NO;
+S1BC.ar = S1_NC;
+LED28 = S1BC.q;
+
+S2BC.d = 0;
+S2BC.clk = 0;
+S2BC.ap = S2_NO;
+S2BC.ar = S2_NC;
+LED29 = S2BC.q;
+
+// CPU clock
+
+cpuclk = DIP7&S1BC.q&run.q;
+
+// CPU asynchronous reset (START)
+
+start = DIP7&S2BC.q;
+
+// memory (write) clock
+
+memclk = S2BC.q&!DIP7 # DIP7&S1BC.q;
+
+// memory edit / run status indicators
+
+LED17 = !DIP7;  // jumbo yellow -> memory edit mode
+LED18 =  DIP7;  // jumbo green -> computer run mode
+
+// memory address register for edit mode
+
+MAR := !DIP7&(MAR+1)&!(MAR==13) # DIP7&MAR;
+MAR.clk = !DIP7&S1BC.q;
+
+// memory edit data bus
+
+DM = (MAR==0)&M0 # (MAR==1)&M1 # (MAR==2)&M2 # (MAR==3)&M3 # (MAR==4)&M4 # (MAR==5)&M5 # (MAR==6)&M6 # (MAR==7)&M7
+    # (MAR==8)&M8 # (MAR==9)&M9 # (MAR==10)&M10 # (MAR==11)&M11 # (MAR==12)&M12 # (MAR==13)&M13;
+
+// CPU data bus
+
+DB = (AB==0)&M0 # (AB==1)&M1 # (AB==2)&M2 # (AB==3)&M3 # (AB==4)&M4 # (AB==5)&M5 # (AB==6)&M6 # (AB==7)&M7
+    # (AB==8)&M8 # (AB==9)&M9 # (AB==10)&M10 # (AB==11)&M11 # (AB==12)&M12 # (AB==13)&M13;
+
+// CPU address bus
+
+AB = DIP7&(!sq&PC # sq&[ir3..ir0]) # !DIP7&MAR;
+
+// memory next state equations
+
+M0 := (AB==0)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M0) # (AB!=0)&M0;
+M0.clk = memclk;
+
+M1 := (AB==1)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M1) # (AB!=1)&M1;
+M1.clk = memclk;
+
+M2 := (AB==2)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M2) # (AB!=2)&M2;
+M2.clk = memclk;
+
+M3 := (AB==3)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M3) # (AB!=3)&M3;
+M3.clk = memclk;
+
+M4 := (AB==4)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M4) # (AB!=4)&M4;
+M4.clk = memclk;
+
+M5 := (AB==5)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M5) # (AB!=5)&M5;
+M5.clk = memclk;
+
+M6 := (AB==6)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M6) # (AB!=6)&M6;
+M6.clk = memclk;
+
+M7 := (AB==7)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M7) # (AB!=7)&M7;
+M7.clk = memclk;
+
+M8 := (AB==8)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M8) # (AB!=8)&M8;
+M8.clk = memclk;
+
+M9 := (AB==9)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M9) # (AB!=9)&M9;
+M9.clk = memclk;
+
+M10 := (AB==10)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M10) # (AB!=10)&M10;
+M10.clk = memclk;
+
+M11 := (AB==11)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M11) # (AB!=11)&M11;
+M11.clk = memclk;
+
+M12 := (AB==12)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M12) # (AB!=12)&M12;
+M12.clk = memclk;
+
+M13 := (AB==13)&(!DIP7&DIPD # DIP7&(STA&sq&[0,0,0,areg3,areg2,areg1,areg0]) # DIP7&!(STA&sq)&M13) # (AB!=13)&M13;
+M13.clk = memclk;
+
+// state counter
+
+sq := !sq;
+sq.ar = start;
+sq.clk = cpuclk;
+LED15 = sq;
+
+// run/stop
+
+run.ap = start;
+run.clk = 0;
+run.d = 0;
+run.ar = HLT&sq;
+LED16 = !run.q;  // jumbo red -> computer halted
+
+// program counter
+
+PC := PC + [0, 0, 0, pcc];
+PC.ar = start;
+PC.clk = cpuclk;
+
+// instruction register
+
+IR := !irl&IR # irl&DB;
+IR.ar = start;
+IR.clk = cpuclk;
+[LED14..LED8] = IR;
+
+// arithmetic logic unit - control signals
+
+ale = run.q&sq.q&(LDA # ADD # SUB # AND # INA);
+
+alx = sq.q&(LDA # AND # INA);
+
+aly = sq.q&(SUB # LDA # INA);
+
+// arithmetic logic unit - CLA
+
+P0 = areg0 $ (!aly&db0 # aly&!db0);
+P1 = areg1 $ (!aly&db1 # aly&!db1);
+P2 = areg2 $ (!aly&db2 # aly&!db2);
+P3 = areg3 $ (!aly&db3 # aly&!db3);
+
+G0 = areg0 & (!aly&db0 # aly&!db0);
+G1 = areg1 & (!aly&db1 # aly&!db1);
+G2 = areg2 & (!aly&db2 # aly&!db2);
+G3 = areg3 & (!aly&db3 # aly&!db3);
+
+C0 = G0 # CIN&P0;
+C1 = G1 # G0&P1 # CIN&P0&P1;
+C2 = G2 # G1&P2 # G0&P1&P2 # CIN&P0&P1&P2;
+C3 = G3 # G2&P3 # G1&P2&P3 # G0&P1&P2&P3 # CIN&P0&P1&P2&P3;
+
+S0 = CIN$P0;
+S1 = C0$P1;
+S2 = C1$P2;
+S3 = C2$P3;
+
+// arithmetic logic unit - condition code register
+
+CF.d = !ale&CF.q # ale&(!alx&(C3$aly) # alx&CF.q);
+CF.clk = cpuclk;
+CF.ar = start;
+
+ZF.d = !ale&ZF.q # ale&!alu3&!alu2&!alu1&!alu0;
+ZF.clk = cpuclk;
+ZF.ar = start;
+
+NF.d = !ale&NF.q # ale&alu3;
+NF.clk = cpuclk;
+NF.ar = start;
+
+VF.d = !ale&VF.q # ale&(!alx&(C3$C2) # alx&VF.q);
+VF.clk = cpuclk;
+VF.ar = start;
+
+[LED7..LED4] = [CF,NF,ZF,VF];
+
+// ALU combinational outputs
+
+ALU = !alx&SUM # alx&!aly&AREG&dba # alx&aly&LDA&dba;
+
+// accumulator (A) register
+
+AREG := (!ale&AREG # ale&ALU)&!INA # INA&[DIP3..DIP0];
+AREG.clk = cpuclk;
+AREG.ar = start;
+
+[LED3..LED0] = AREG;
+
+// input port
+
+[LED23..LED20] = DIP7&[DIP3..DIP0];
+
+// output port
+
+OUTP := sq&OUT&AREG # !(sq&OUT)&OUTP;
+OUTP.clk = cpuclk;
+OUTP.ar = start;
+[LED27..LED24] = OUTP;
+
+// 7-segment display decoding
+
+truth_table([mar3,mar2,mar1,mar0]->[DIS3a, DIS3b, DIS3c, DIS3d, DIS3e, DIS3f, DIS3g])
+            [ 0, 0, 0, 0]->[1,1,1,1,1,1,0];
+            [ 0, 0, 0, 1]->[0,1,1,0,0,0,0];
+            [ 0, 0, 1, 0]->[1,1,0,1,1,0,1];
+            [ 0, 0, 1, 1]->[1,1,1,1,0,0,1];
+            [ 0, 1, 0, 0]->[0,1,1,0,0,1,1];
+            [ 0, 1, 0, 1]->[1,0,1,1,0,1,1];
+            [ 0, 1, 1, 0]->[1,0,1,1,1,1,1];
+            [ 0, 1, 1, 1]->[1,1,1,0,0,0,0];
+            [ 1, 0, 0, 0]->[1,1,1,1,1,1,1];
+            [ 1, 0, 0, 1]->[1,1,1,1,0,1,1];
+            [ 1, 0, 1, 0]->[1,1,1,0,1,1,1];
+            [ 1, 0, 1, 1]->[0,0,1,1,1,1,1];
+            [ 1, 1, 0, 0]->[1,0,0,1,1,1,0];
+            [ 1, 1, 0, 1]->[0,1,1,1,1,0,1];
+            [ 1, 1, 1, 0]->[1,0,0,1,1,1,1];
+            [ 1, 1, 1, 1]->[1,0,0,0,1,1,1];
+
+
+truth_table([dm6,dm5,dm4]->[DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g])
+            [ 0, 0, 0]->[1,1,1,1,1,1,0];
+            [ 0, 0, 1]->[0,1,1,0,0,0,0];
+            [ 0, 1, 0]->[1,1,0,1,1,0,1];
+            [ 0, 1, 1]->[1,1,1,1,0,0,1];
+            [ 1, 0, 0]->[0,1,1,0,0,1,1];
+            [ 1, 0, 1]->[1,0,1,1,0,1,1];
+            [ 1, 1, 0]->[1,0,1,1,1,1,1];
+            [ 1, 1, 1]->[1,1,1,0,0,0,0];
+
+
+truth_table([dm3,dm2,dm1,dm0]->[DIS1a, DIS1b, DIS1c, DIS1d, DIS1e, DIS1f, DIS1g])
+            [ 0, 0, 0, 0]->[1,1,1,1,1,1,0];
+            [ 0, 0, 0, 1]->[0,1,1,0,0,0,0];
+            [ 0, 0, 1, 0]->[1,1,0,1,1,0,1];
+            [ 0, 0, 1, 1]->[1,1,1,1,0,0,1];
+            [ 0, 1, 0, 0]->[0,1,1,0,0,1,1];
+            [ 0, 1, 0, 1]->[1,0,1,1,0,1,1];
+            [ 0, 1, 1, 0]->[1,0,1,1,1,1,1];
+            [ 0, 1, 1, 1]->[1,1,1,0,0,0,0];
+            [ 1, 0, 0, 0]->[1,1,1,1,1,1,1];
+            [ 1, 0, 0, 1]->[1,1,1,1,0,1,1];
+            [ 1, 0, 1, 0]->[1,1,1,0,1,1,1];
+            [ 1, 0, 1, 1]->[0,0,1,1,1,1,1];
+            [ 1, 1, 0, 0]->[1,0,0,1,1,1,0];
+            [ 1, 1, 0, 1]->[0,1,1,1,1,0,1];
+            [ 1, 1, 1, 0]->[1,0,0,1,1,1,1];
+            [ 1, 1, 1, 1]->[1,0,0,0,1,1,1];
+
+
+truth_table([pc3,pc2,pc1,pc0]->[DIS4a, DIS4b, DIS4c, DIS4d, DIS4e, DIS4f, DIS4g])
+            [ 0, 0, 0, 0]->[1,1,1,1,1,1,0];
+            [ 0, 0, 0, 1]->[0,1,1,0,0,0,0];
+            [ 0, 0, 1, 0]->[1,1,0,1,1,0,1];
+            [ 0, 0, 1, 1]->[1,1,1,1,0,0,1];
+            [ 0, 1, 0, 0]->[0,1,1,0,0,1,1];
+            [ 0, 1, 0, 1]->[1,0,1,1,0,1,1];
+            [ 0, 1, 1, 0]->[1,0,1,1,1,1,1];
+            [ 0, 1, 1, 1]->[1,1,1,0,0,0,0];
+            [ 1, 0, 0, 0]->[1,1,1,1,1,1,1];
+            [ 1, 0, 0, 1]->[1,1,1,1,0,1,1];
+            [ 1, 0, 1, 0]->[1,1,1,0,1,1,1];
+            [ 1, 0, 1, 1]->[0,0,1,1,1,1,1];
+            [ 1, 1, 0, 0]->[1,0,0,1,1,1,0];
+            [ 1, 1, 0, 1]->[0,1,1,1,1,0,1];
+            [ 1, 1, 1, 0]->[1,0,0,1,1,1,1];
+            [ 1, 1, 1, 1]->[1,0,0,0,1,1,1];
+
+END
