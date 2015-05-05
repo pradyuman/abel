@@ -1,4 +1,4 @@
-This ABEL program creates a simple computer that utilizes 7-bit instructions and sports 14 memory SRAM locations.
+####This ABEL program creates a simple computer that utilizes 7-bit instructions and sports 14 memory SRAM locations.
 
 The target CPLD is: ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
 
