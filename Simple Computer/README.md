@@ -15,14 +15,14 @@ The instructions to this computer are 7 bits long and consist of a 3 bit opcode 
 
 The commands are:
 
-* (**HLT** | opcode 000) *Halt execution*
-* (**LDA** | opcode 001) *Load data bus values into A-REGISTER*
-* (**ADD** | opcode 010) *Add the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
-* (**SUB** | opcode 011) *Subtract the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
-* (**AND** | opcode 100) *Logical-AND the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
-* (**STA** | opcode 101) *Store the information on the A-REGISTER into a specified address location in memory*
-* (**INA** | opcode 110) *Load the input values (from DIP switch) into the A-REGISTER*
-* (**OUT** | opcode 111) *Output the A-REGISTER values to LEDs on the CPLD*
+* **(HLT | opcode 000)** *Halt execution*
+* **(LDA | opcode 001)** *Load data bus values into A-REGISTER*
+* **(ADD | opcode 010)** *Add the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
+* **(SUB | opcode 011)** *Subtract the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
+* **(AND | opcode 100)** *Logical-AND the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
+* **(STA | opcode 101)** *Store the information on the A-REGISTER into a specified address location in memory*
+* **(INA | opcode 110)** *Load the input values (from DIP switch) into the A-REGISTER*
+* **(OUT | opcode 111)** *Output the A-REGISTER values to LEDs on the CPLD*
 
 The ALU utilizes radix arithmetic (two's complement) and has four control signals:
 * **ALE:** *ALU Enable*
