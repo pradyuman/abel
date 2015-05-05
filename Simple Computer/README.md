@@ -11,10 +11,7 @@ This simple computer has many different parts:
 * **Arithmetic Logic Unit:** *This unit is 4 bits wide and performs arithmetic and logical operations as defined by the instruction set. It sets four condition code bits (Carry Flag, Negative Flag, Zero Flag, Overflow Flag) and includes an accumulator register (A-REGISTER) that stores data while it is being processed.*
 * **Instruction Decoder and Micro-Sequencer (IDMS):** *This unit orchestrates the sequencing of all the activities on the computer. This simple computer has two types of cycles: fetch and execute. As such, the IDMS includes a single flip-flop that is used as a state counter and is toggled between '0' (fetch) and '1' (execute). The IDMS also completes various other tasks necessary for the computer to operate.*
 
-The instructions to this computer are 7 bits long and consist of a 3 bit opcode field and a 4 bit address.
-
-The commands are:
-
+The instructions to this computer are 7 bits long and consist of a 3 bit opcode field and a 4 bit address. The commands are:
 * **(HLT | opcode 000)** *Halt execution*
 * **(LDA | opcode 001)** *Load data bus values into A-REGISTER*
 * **(ADD | opcode 010)** *Add the information on the data bus with the information on the A-REGISTER and store the result in the A-REGISTER*
@@ -31,3 +28,9 @@ The ALU utilizes radix arithmetic (two's complement) and has four control signal
 * **AOE:** *A-REGISTER output to the data bus*
 
 The ALU functions according to the following description:
+| :ALE: | :ALX: | :ALY: | :Mnemonic: | :Function Performed:       | :CF: | :NF: | :ZF: | :VF: |
+| 0     | d     | d     | -          | *stay in the same state*   | -    | -    | -    | -    |
+| 1     | 0     | 0     | ADD        | (A) <- (A) + (*data bus*)  | *    |  *   | *    | *    |
+| 1     | 0     | 1     | SUB        | (A) <- (A) - (*data bus*)  | *    | *    | *    | *    |
+| 1     | 1     | 0     | AND        | (A) <- (A) AND (*data bus*)| -    | *    | *    | -    |
+| 1     | 1     | 1     | LDA        | (A) <- (*data bus*)        | -    | *    | *    | -    |
