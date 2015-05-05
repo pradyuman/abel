@@ -1,6 +1,6 @@
-MODULE characterSequenceGenerator
+MODULE digitalCombinationLock
 
-TITLE 'Character Sequence Generator'
+TITLE 'Digital Combination Lock'
 
 // Target CPLD is ispMACH LC4256ZE 144-pin TQFP (LC4256ZE-5TN144C)
 
@@ -167,49 +167,63 @@ charS = [1,0,1,1,0,1,1];  // S
 charU = [0,1,1,1,1,1,0];  // U
 charY = [0,1,1,1,0,1,1];  // y
 
-// User-defined variables follow
+// Bounceless switches
 
-// Note - these should all be declared as NODES (*not* PINS)
+S1BC node istype 'reg_D,buffer';
+S2BC node istype 'reg_D,buffer';
+
+// User-defined variables follow
+//oscillator
 _timdiv node istype 'reg_D,buffer';
 timdiv node istype 'reg_D,buffer';
 
-Q0..Q4 node istype 'reg';
-Q = [Q4..Q0];
+X0..X7 node istype 'reg';
+X = [X7..X0];
+
+Y0..Y7 node istype 'reg';
+Y = [Y7..Y0];
+
+Q0..Q3 node istype 'reg';
+Q = [Q3..Q0];
+
+[C0..C3] node istype 'reg';
+[R0..R3] node istype 'reg';
+CALL = [C3..C0];
+RALL = [R3..R0];
 
 //states
-A0 = [0, 0, 0, 0, 0];
-A1 = [0, 0, 0, 0, 1];
-A2 = [0, 0, 0, 1, 0];
-A3 = [0, 0, 0, 1, 1];
-A4 = [0, 0, 1, 0, 0];
-A5 = [0, 0, 1, 0, 1];
-A6 = [0, 0, 1, 1, 0];
-A7 = [0, 0, 1, 1, 1];
-A8 = [0, 1, 0, 0, 0];
-A9 = [0, 1, 0, 0, 1];
-A10 =[0, 1, 0, 1, 0];
-A11 =[0, 1, 0, 1, 1];
-A12 =[0, 1, 1, 0, 0];
-A13 =[0, 1, 1, 0, 1];
-A14 =[0, 1, 1, 1, 0];
-A15 =[0, 1, 1, 1, 1];
-A16 = [1, 0, 0, 0, 0];
-A17 = [1, 0, 0, 0, 1];
-A18 = [1, 0, 0, 1, 0];
-A19 = [1, 0, 0, 1, 1];
-A20 = [1, 0, 1, 0, 0];
-A21 = [1, 0, 1, 0, 1];
-A22 = [1, 0, 1, 1, 0];
-A23 = [1, 0, 1, 1, 1];
-A24 = [1, 1, 0, 0, 0];
-A25 = [1, 1, 0, 0, 1];
-A26 = [1, 1, 0, 1, 0];
-A27 = [1, 1, 0, 1, 1];
-A28 = [1, 1, 1, 0, 0];
-A29 = [1, 1, 1, 0, 1];
-A30 = [1, 1, 1, 1, 0];
-A31 = [1, 1, 1, 1, 1];
+A0 = [0,0,0,0]; //blank
+A1 = [0,0,0,1];
+A2 = [0,0,1,0];
+A3 = [0,0,1,1];
+A4 = [0,1,0,0];
+A5 = [0,1,0,1];
+A6 = [0,1,1,0];
+A7 = [0,1,1,1];
+A8 = [1,0,0,0];
+A9 = [1,0,0,1]; //alarm
 
+//states
+B0 = [0,0,0,0];
+B1 = [0,0,0,1];
+B2 = [0,0,1,0];
+B3 = [0,0,1,1];
+B4 = [0,1,0,0];
+B5 = [0,1,0,1];
+B6 = [0,1,1,0];
+B7 = [0,1,1,1];
+B8 = [1,0,0,0];
+B9 = [1,0,0,1];
+B10 = [1,0,1,0];
+B11 = [1,0,1,1];
+B12 = [1,1,0,0];
+B13 = [1,1,0,1];
+B14 = [1,1,1,0];
+B15 = [1,1,1,1];
+
+H node istype 'com';
+
+// Note - these should all be declared as NODES (*not* PINS)
 //display
 pDIS1a, pDIS1b, pDIS1c, pDIS1d, pDIS1e, pDIS1f, pDIS1g node istype 'com';
 pDIS2a, pDIS2b, pDIS2c, pDIS2d, pDIS2e, pDIS2f, pDIS2g node istype 'reg';
@@ -219,6 +233,7 @@ pDIS1 = [pDIS1a, pDIS1b, pDIS1c, pDIS1d, pDIS1e, pDIS1f, pDIS1g];
 pDIS2 = [pDIS2a, pDIS2b, pDIS2c, pDIS2d, pDIS2e, pDIS2f, pDIS2g];
 pDIS3 = [pDIS3a, pDIS3b, pDIS3c, pDIS3d, pDIS3e, pDIS3f, pDIS3g];
 pDIS4 = [pDIS4a, pDIS4b, pDIS4c, pDIS4d, pDIS4e, pDIS4f, pDIS4g];
+
 // ======================= START OF EQUATIONS SECTION =================================
 
 EQUATIONS
@@ -230,134 +245,166 @@ osc_rst = 0;
 
 I1 OSCTIMER(osc_dis, osc_rst, osc_out, tmr_out);
 
-// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
-
 _timdiv.clk = tmr_out;
 _timdiv := !_timdiv;
+
 timdiv.clk = _timdiv;
 timdiv := !timdiv;
 
-LED28 = timdiv;
+// User-defined equations, clocked-operator tables, and/or state diagram definitions follow
+// Bounceless switches (S1 and S2)
 
-//Scrolling display shift register
-pDIS4 := pDIS3;
-pDIS3 := pDIS2;
-pDIS2 := pDIS1;
+S1BC.d = 0;
+S1BC.clk = 0;
+S1BC.ap = S1_NO;
+S1BC.ar = S1_NC;
+LED28 = S1BC.q;
 
+S2BC.d = 0;
+S2BC.clk = 0;
+S2BC.ap = S2_NO;
+S2BC.ar = S2_NC;
+LED29 = S2BC.q;
+
+RALL.clk = timdiv;
+// Linear feedback sift register (pseudo-random sequence generator)
+X0 := X0 $ X2 $ X3 $ X4;
+X1 := X0;
+X2 := X1;
+X3 := X2;
+X4 := X3;
+X5 := X4;
+X6 := X5;
+X7 := X6;
+
+X.ap = DIP7; //Reset
+X.ce = DIP0;
+X.clk = timdiv;
+TOPRED = X & DIP1;
+
+//Self-correcting ring counter
+Y7 := Y6;
+Y6 := Y5;
+Y5 := Y4;
+Y4 := Y3;
+Y3 := Y2;
+Y2 := Y1;
+Y1 := Y0;
+Y0 := !(Y0#Y1#Y2#Y3#Y4#Y5#Y6);
+
+Y.clk = S1BC;
+[Y7..Y1].ar = DIP7 # DIP2 # LED18;
+Y0.ap = DIP7 # DIP2 # LED18;
+MIDRED = Y;
+
+LED16 = ([CALL] == [A9]) & timdiv;
+
+H = [CALL] == [A9];
+CALL.clk = S1BC;
+CALL.AR = DIP7;
+
+//Scrolling status display
 pDIS2.clk = timdiv;
 pDIS3.clk = timdiv;
 pDIS4.clk = timdiv;
+
+pDIS2.ar = DIP7;
+pDIS3.ar = DIP7;
+pDIS4.ar = DIP7;
+
+pDIS4 := pDIS3;
+pDIS3 := pDIS2;
+pDIS2 := pDIS1;
 
 DIS1 = pDIS1;
 DIS2 = pDIS2;
 DIS3 = pDIS3;
 DIS4 = pDIS4;
 
-Q.clk = timdiv;
-Q.ar = DIP7;
+//Sequence recognizer state machine
+STATE_DIAGRAM CALL
+state A0: if (S2BC!=X0) then A9
+	  else A1;
+state A1: if (S2BC!=X1) then A9;
+	  else A2;
+state A2: if (S2BC!=X2) then A9;
+	  else A3;
+state A3: if (S2BC!=X3) then A9;
+	  else A4;
+state A4: if (S2BC!=X4) then A9;
+	  else A5;
+state A5: if (S2BC!=X5) then A9;
+	  else A6;
+state A6: if (S2BC!=X6) then A9;
+	  else A7;
+state A7: if (S2BC!=X7) then A9;
+	  else A8;
+state A8: if(!DIP2) then A8;
+	  else A0;
+state A9: goto A9;
 
-//Character sequence generator
-STATE_DIAGRAM Q
+STATE_DIAGRAM RALL
+state B0: if LED17 then B1
+	  else if LED18 then B7;
+	  else if H then B11;
+state B1: if LED17 then B2;
+	  else B0;
+state B2: if LED17 then B3;
+	  else B0;
+state B3: if LED17 then B4;
+	  else B0;
+state B4: if LED17 then B5;
+	  else B0;
+state B5: if LED17 then B6;
+	  else B0;
+state B6: if LED17 then B0;
+	  else B0;
+state B7: if LED18 then B8;
+	  else B0;
+state B8: if LED18 then B9;
+	  else B0;
+state B9: if LED18 then B10;
+	  else B0;
+state B10: if LED18 then B0;
+	  else B0;
+state B11: if H then B12;
+	  else B0;
+state B12: if H then B13;
+	  else B0;
+state B13: if H then B14;
+	  else B0;
+state B14: if H then B15;
+	  else B0;
+state B15: if H then B0;
+	  else B0;
+TRUTH_TABLE([CALL] -> [LED17, LED18])
+            [A0] -> [1,0];
+	    [A1] -> [1,0];
+	    [A2] -> [1,0];
+	    [A3] -> [1,0];
+	    [A4] -> [1,0];
+	    [A5] -> [1,0];
+	    [A6] -> [1,0];
+	    [A7] -> [1,0];
+	    [A8] -> [0,1];
+	    [A9] -> [0,0];
 
-state A0: 	if (DIP0 == 0) & (DIP1 == 0) then A1
-	   else if (DIP0 == 0) & (DIP1 == 1) then A10
-	   else if (DIP0 == 1) & (DIP1 == 0) then A15
-	   else if (DIP0 == 1) & (DIP1 == 1) then A24;
-
-state A1:       if (DIP0 == 0) & (DIP1 == 0) then A2
-		else A0;
-state A2:       if (DIP0 == 0) & (DIP1 == 0) then A3
-		else A0;
-state A3:       if (DIP0 == 0) & (DIP1 == 0) then A4
-		else A0;
-state A4:       if (DIP0 == 0) & (DIP1 == 0) then A5
-		else A0;
-state A5:       if (DIP0 == 0) & (DIP1 == 0) then A6
-		else A0;
-state A6:       if (DIP0 == 0) & (DIP1 == 0) then A7
-		else A0;
-state A7:       if (DIP0 == 0) & (DIP1 == 0) then A8
-		else A0;
-state A8:       if (DIP0 == 0) & (DIP1 == 0) then A9
-		else A0;
-state A9:       goto A0;
-
-state A10:      if (DIP0 == 0) & (DIP1 == 1) then A11
-		else A0;
-state A11:      if (DIP0 == 0) & (DIP1 == 1) then A12
-		else A0;
-state A12:      if (DIP0 == 0) & (DIP1 == 1) then A13
-		else A0;
-state A13:      if (DIP0 == 0) & (DIP1 == 1) then A14
-		else A0;
-state A14:      goto A0;
-
-state A15:      if (DIP0 == 1) & (DIP1 == 0) then A16
-		else A0;
-state A16:      if (DIP0 == 1) & (DIP1 == 0) then A17
-		else A0;
-state A17:      if (DIP0 == 1) & (DIP1 == 0) then A18
-		else A0;
-state A18:      if (DIP0 == 1) & (DIP1 == 0) then A19
-		else A0;
-state A19:      if (DIP0 == 1) & (DIP1 == 0) then A20
-		else A0;
-state A20:      if (DIP0 == 1) & (DIP1 == 0) then A21
-		else A0;
-state A21:      if (DIP0 == 1) & (DIP1 == 0) then A22
-		else A0;
-state A22:      if (DIP0 == 1) & (DIP1 == 0) then A23
-		else A0;
-state A23:      goto A0;
-
-state A24:      if (DIP0 == 1) & (DIP1 == 1) then A25
-		else A0;
-state A25:      if (DIP0 == 1) & (DIP1 == 1) then A26
-		else A0;
-state A26:      if (DIP0 == 1) & (DIP1 == 1) then A27
-		else A0;
-state A27:      if (DIP0 == 1) & (DIP1 == 1) then A28
-		else A0;
-state A28:      if (DIP0 == 1) & (DIP1 == 1) then A29
-		else A0;
-state A29:      if (DIP0 == 1) & (DIP1 == 1) then A30
-		else A0;
-state A30:      if (DIP0 == 1) & (DIP1 == 1) then A31
-		else A0;
-state A31:      goto A0;
-
-TRUTH_TABLE ([Q] -> [pDIS1])
-	     [A0] -> [blank];
-	     [A1] -> [charG];
-	     [A2] -> [charO];
-	     [A3] -> [blank];
-	     [A4] -> [charP];
-	     [A5] -> [charU];
-	     [A6] -> [charR];
-	     [A7] -> [charD];
-	     [A8] -> [charU];
-	     [A9] -> [charE];
-	     [A10] -> [charN];
-	     [A11] -> [charO];
-	     [A12] -> [charI];
-	     [A13] -> [charS];
-	     [A14] -> [charE];
-	     [A15] -> [charB];
-	     [A16] -> [charO];
-	     [A17] -> [charI];
-	     [A18] -> [charL];
-	     [A19] -> [charE];
-	     [A20] -> [charR];
-	     [A21] -> [blank];
-	     [A22] -> [charU];
-	     [A23] -> [charP];
-	     [A24] -> [charR];
-	     [A25] -> [charA];
-	     [A26] -> [charU];
-	     [A27] -> [charL];
-	     [A28] -> [blank];
-	     [A29] -> [charB];
-	     [A30] -> [charI];
-	     [A31] -> [charG];
+TRUTH_TABLE([RALL] -> [pDIS1])
+	     [B0]   -> [blank];
+             [B1]   -> [charS];
+             [B2]   -> [charE];
+             [B3]   -> [charC];
+             [B4]   -> [charU];
+             [B5]   -> [charR];
+             [B6]   -> [charE];
+             [B7]   -> [charO];
+             [B8]   -> [charP];
+             [B9]   -> [charE];
+             [B10]  -> [charN];
+             [B11]  -> [charE];
+             [B12]  -> [charR];
+             [B13]  -> [charR];
+             [B14]  -> [charO];
+             [B15]  -> [charR];
 
 END
