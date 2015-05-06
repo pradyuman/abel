@@ -28,10 +28,11 @@ The ALU utilizes radix arithmetic (two's complement) and has four control signal
 * **AOE:** *A-REGISTER output to the data bus*
 
 The ALU functions according to the following description:
+
 |  ALE  |  ALX  |  ALY  |  Mnemonic  |    Function Performed      |  CF  |  NF  |  ZF  |  VF  |
 | :---: | :---: | :---: | :--------: | :------------------------: | :--: | :--: | :--: | :--: |
 | 0     | d     | d     | -          | *stay in the same state*   | -    | -    | -    | -    |
-| 1     | 0     | 0     | ADD        | (A) <- (A) + (*data bus*)  | *    |  *   | *    | *    |
-| 1     | 0     | 1     | SUB        | (A) <- (A) - (*data bus*)  | *    | *    | *    | *    |
-| 1     | 1     | 0     | AND        | (A) <- (A) AND (*data bus*)| -    | *    | *    | -    |
-| 1     | 1     | 1     | LDA        | (A) <- (*data bus*)        | -    | *    | *    | -    |
+| 1     | 0     | 0     | ADD        | (A) &#x2190; (A) + (*data bus*)  | &#x2195;    |  &#x2195;   | &#x2195;    | &#x2195;    |
+| 1     | 0     | 1     | SUB        | (A) &#x2190; (A) - (*data bus*)  | &#x2195;    | &#x2195;    | &#x2195;    | &#x2195;    |
+| 1     | 1     | 0     | AND        | (A) &#x2190; (A) &#x2229; (*data bus*)| -    | &#x2195;    | &#x2195;    | -    |
+| 1     | 1     | 1     | LDA        | (A) &#x2190; (*data bus*)        | -    | &#x2195;    | &#x2195;    | -    |
