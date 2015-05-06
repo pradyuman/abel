@@ -14,7 +14,7 @@ This simple computer has many different parts:
 The instructions to this computer are 7 bits long and consist of a 3 bit opcode field and a 4 bit address. The commands are:
 
 | OPCODE | Mnemonic | Function Performed | Description |
-| :------: | :----: | :--------- | :--------- |
+| :------: | :----: | :----------------: | :--------- |
 | 000 | HLT 	 | *halt execution* | *retain state* |
 | 001 | LDA addr | (A) &#x2190; (*addr*) | Load data at *address* into *A-register* |
 | 010 | ADD addr | (A) &#x2190; (A) + (*data bus*) | Add the information at *address* with the information on the *A-register* and store the result in the *A-register* |
@@ -22,7 +22,7 @@ The instructions to this computer are 7 bits long and consist of a 3 bit opcode 
 | 100 | AND addr | (A) &#x2190; (A) &#x2229; (*data bus*) | Logical-AND the information at *address* with the information on the *A-register* and store the result in the *A-register* |
 | 101 | STA addr | (*addr*) &#x2190; (A) | Store the information on the *A-register* into a specified address location in memory |
 | 110 | INA 	 | (A) &#x2190; [DIP3..DIP0] | Load the input values (from *DIP* switch) into the *A-register* |
-| 111 | OUT 	 | [LED27..LED24] &#x2190; (A)| Output the *A-register* values to *LEDs* on the CPLD* |
+| 111 | OUT 	 | [LED27..LED24] &#x2190; (A)| Output the *A-register* values to *LEDs* on the CPLD |
 
 The ALU utilizes radix arithmetic (two's complement) and has four control signals:
 * **ALE:** *ALU Enable*
