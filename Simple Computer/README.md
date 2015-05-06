@@ -53,7 +53,7 @@ The second display shows a hexadecimal number from 1 to D that corresponds to a 
 The third display shows the opcode stored at the memory address using a decimal number (first three bits of the instruction). 
 The last display will show you what address is stored in the memory location using a decimal number (last 4 bits of the instruction). 
 
-Set DIP7 = 0 to enter memory edit mode so that you can enter in a series of instructions using [DIP6..DIP0] (this is the 7 bit instruction that has a 3 bit opcode and an optional 4 bit address). This simple computer supports a maximum of 14 instructions. 
+Set DIP7 = 0 to enter memory edit mode so that you can enter in a series of instructions using [DIP6..DIP0] \(this is the 7 bit instruction that has a 3 bit opcode and an optional 4 bit address). This simple computer supports a maximum of 14 instructions. 
 Use S1 to save the [DIP6..DIP0] switch values into a memory location and use S2 to cycle through the memory locations.
 
 Set DIP7 = 1 to enter run mode. Clock through the instructions using S2. The computer will automatically perform the instructions that you saved into memory when in memory edit mode. Assert S1 to reset the program counter and start from memory location (and instruction) one.
