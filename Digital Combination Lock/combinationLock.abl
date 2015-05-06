@@ -94,7 +94,7 @@ DIS2 = [DIS2a, DIS2b, DIS2c, DIS2d, DIS2e, DIS2f, DIS2g];
 !DIS3a pin 125 istype 'com';	//IO_P2
 !DIS3b pin 124 istype 'com';	//IO_P4
 !DIS3c pin 123 istype 'com';	//IO_P6
-!DIS3d pin 122 istype 'com';  //IO_P8
+!DIS3d pin 122 istype 'com';    //IO_P8
 !DIS3e pin 121 istype 'com';	//IO_P10
 !DIS3f pin 120 istype 'com';	//IO_P12
 !DIS3g pin 116 istype 'com';	//IO_O2
