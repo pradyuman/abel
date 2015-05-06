@@ -14,7 +14,7 @@ This simple computer has many different parts:
 The instructions to this computer are 7 bits long and consist of a 3 bit opcode field and a 4 bit address. The commands are:
 
 | Mnemonic | Opcode | Description |
-| :------: | :----: | :---------: |
+| :------: | :----: | :--------- |
 | HLT | 000 | Halt execution |
 | LDA | 001 | Load data bus values into *A-REGISTER* |
 | ADD | 010 | Add the information on the data bus with the information on the *A-REGISTER* and store the result in the *A-REGISTER* |
