@@ -267,7 +267,7 @@ S2BC.ar = S2_NC;
 LED29 = S2BC.q;
 
 RALL.clk = timdiv;
-// Linear feedback sift register (pseudo-random sequence generator)
+// Linear feedback shift register (pseudo-random sequence generator)
 X0 := X0 $ X2 $ X3 $ X4;
 X1 := X0;
 X2 := X1;
